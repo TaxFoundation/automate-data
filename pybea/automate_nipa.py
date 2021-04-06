@@ -1,9 +1,7 @@
 import pybea
 import pandas as pd
-import numpy as np
 import sys
 import time
-import pickle
 
 # If you get temporarily blocked by the BEA use the other API key.
 # UserID = '1985ECDD-2CF4-4239-8A48-4C1C2FFA9A95'
@@ -14,6 +12,7 @@ UserID = '0B4FD943-BC51-49E8-97E1-81C6C85D34F9'
 def update_all_nipa_tag(frequency):
     """
     Generates one .csv file (in NIPA_ALL) containing all the NIPA data for a given frequency for all available years.
+    The TAG model uses Annual data for the NIPA dataset.
     Parameters
     ----------
     string frequency: 'A', 'Q', 'M'
@@ -51,6 +50,7 @@ def update_all_nipa_tag(frequency):
             table_name.append(x)
 
         except KeyError:
+            # Failures typically mean that the dataset isn't available for the given frequency that was affected.
             print('FAILURE', x)
             failures_remaining -= 1
             if failures_remaining < 3:
@@ -72,8 +72,9 @@ def update_all_nipa_tag(frequency):
     aggregate_nipa['Value'] = data_val_col
 
     aggregate_nipa.to_csv('../NIPA_ALL/aggregate_nipa_{0}.csv'.format(frequency), index=False)
+    aggregate_nipa.to_csv('aggregate_nipa_{0}.csv'.format(frequency), index=False)
 
-    print('These are the tables that returned valid results: ', table_name)
+    # print('These are the tables that returned valid results: ', table_name)
 
 
 def update_all_nipa():
@@ -163,9 +164,6 @@ def update_nipa(tablenames, frequency, year):
 def main():
     # Updated update function
     update_all_nipa_tag('A')
-    # update_all_nipa_tag('Q')
-    # update_all_nipa_tag('M')
-
 
 
 if __name__ == '__main__':
